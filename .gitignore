@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+.next/
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Database (Iron Man)
+data/*.db
+
+# Temporary
+tmp/
+temp/
+.cache/
+
+# Submodules (managed separately)
+2nd-brain/
+claude-mem/
+ui-ux-pro-max-skill/
