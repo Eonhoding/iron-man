@@ -1,4 +1,4 @@
-import { initDatabase, getProjectById, updateProject, deleteProject } from '../../../../lib/database'
+import { initDatabase, getProjectById, updateProject, deleteProject } from '../../../lib/database'
 
 let dbInitialized = false;
 async function ensureDb() {
