@@ -7,8 +7,9 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
-const DB_PATH = path.join(__dirname, '../../data/iron-man.db');
-const SCHEMA_PATH = path.join(__dirname, '../../data/schema.sql');
+// Caminho absoluto fixo para funcionar no NextJS
+const DB_PATH = '/root/.openclaw/workspace/iron-man/data/iron-man.db';
+const SCHEMA_PATH = '/root/.openclaw/workspace/iron-man/data/schema.sql';
 
 let db = null;
 
@@ -225,17 +226,138 @@ function closeDatabase() {
   });
 }
 
+// ============================================
+// Funções CRUD para Projetos (Fase 3)
+// ============================================
+
+/**
+ * Cria um novo projeto (adaptado para Fase 3)
+ */
+async function createProject(data) {
+  const {
+    nome,
+    area_m2,
+    tipo_obra,
+    padrao,
+    cliente,
+    status
+  } = data;
+
+  // Mapear campos do novo schema para o schema existente
+  const result = await runQuery(
+    `INSERT INTO projetos (nome, cliente, areaConstruida, tipoObra, padrao, status)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [nome, cliente || null, area_m2, tipo_obra, padrao, status || 'em_andamento']
+  );
+
+  return await getProjectById(result.lastID);
+}
+
+/**
+ * Busca um projeto por ID (adaptado para Fase 3)
+ */
+async function getProjectById(id) {
+  const projeto = await getProjeto(id);
+  if (!projeto) return null;
+  
+  // Mapear para o formato esperado pela API
+  return {
+    id: projeto.id,
+    nome: projeto.nome,
+    area_m2: projeto.areaConstruida,
+    tipo_obra: projeto.tipoObra,
+    padrao: projeto.padrao,
+    cliente: projeto.cliente,
+    status: projeto.status === 'concluido' ? 'finalizado' : 'rascunho',
+    valor_total: projeto.valor_total || 0,
+    created_at: projeto.createdAt
+  };
+}
+
+/**
+ * Lista todos os projetos (adaptado para Fase 3)
+ */
+async function getAllProjects() {
+  const projetos = await listarProjetos();
+  // Mapear para o formato esperado pela API
+  return projetos.map(projeto => ({
+    id: projeto.id,
+    nome: projeto.nome,
+    area_m2: projeto.areaConstruida,
+    tipo_obra: projeto.tipoObra,
+    padrao: projeto.padrao,
+    cliente: projeto.cliente,
+    status: projeto.status === 'concluido' ? 'finalizado' : 'rascunho',
+    valor_total: projeto.valor_total || 0,
+    created_at: projeto.createdAt
+  }));
+}
+
+/**
+ * Atualiza um projeto (adaptado para Fase 3)
+ */
+async function updateProject(id, updates) {
+  const fields = [];
+  const values = [];
+  
+  // Mapear campos do novo formato para o schema existente
+  const fieldMap = {
+    area_m2: 'areaConstruida',
+    tipo_obra: 'tipoObra'
+  };
+  
+  Object.keys(updates).forEach(key => {
+    const dbField = fieldMap[key] || key;
+    // Ignorar campos calculados
+    if (dbField !== 'valor_total' && dbField !== 'created_at') {
+      fields.push(`${dbField} = ?`);
+      values.push(updates[key]);
+    }
+  });
+  
+  if (fields.length === 0) {
+    return await getProjectById(id);
+  }
+  
+  values.push(id);
+  
+  await runQuery(
+    `UPDATE projetos SET ${fields.join(', ')} WHERE id = ?`,
+    values
+  );
+  
+  return await getProjectById(id);
+}
+
+/**
+ * Exclui um projeto
+ */
+async function deleteProject(id) {
+  // Primeiro exclui orcamentos e materiais relacionados
+  await runQuery('DELETE FROM materiais_lista WHERE orcamento_id IN (SELECT id FROM orcamentos WHERE projeto_id = ?)', [id]);
+  await runQuery('DELETE FROM orcamentos WHERE projeto_id = ?', [id]);
+  // Depois exclui o projeto
+  await runQuery('DELETE FROM projetos WHERE id = ?', [id]);
+}
+
 module.exports = {
   initDatabase,
   closeDatabase,
   runQuery,
   allQuery,
   getQuery,
+  // Funções originais (português)
   criarProjeto,
   getProjeto,
   listarProjetos,
   criarOrcamento,
   adicionarMaterial,
   getOrcamentoPorProjeto,
-  listarMateriais
+  listarMateriais,
+  // Funções novas (inglês - Fase 3)
+  createProject,
+  getProjectById,
+  getAllProjects,
+  updateProject,
+  deleteProject
 };

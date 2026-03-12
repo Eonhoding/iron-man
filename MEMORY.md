@@ -79,17 +79,19 @@ Visual: Híbrido Obsidian + Linear
 
 1. **2nd Brain** - App de documentação (em desenvolvimento)
    - Repo: `/workspace/2nd-brain/`
-   - Status: Estrutura inicial criada, primeiro commit feito
-   - PRs pendentes: Nenhum (primeiro commit na master)
+   - Status: Estrutura completa pronta, aguardando conteúdo
+   - PRs pendentes: Nenhum
 
 2. **IRON MAN** - Sistema de Construção Civil (🔥 PRIORIDADE MÁXIMA)
    - Repo: `/workspace/iron-man/`
-   - Status: MVP v1.0 funcional (calculadora de orçamentos)
-   - Challenge: 24h para MVP completo
-   - Stack: NextJS + Tailwind + Node.js
+   - Status: **80% completo - TESTÁVEL!** 🎉
+   - Challenge: 24h para MVP completo (início: 2026-03-10 01:42 UTC)
+   - Stack: NextJS + Tailwind + Node.js + SQLite
    - Diferencial: 20+ anos de experiência do sócio do Joelson codificados
-   - Entregas v1.0: Calculadora, Dashboard, Documentação
-   - Próximas: Leitor de plantas, Exportação, Deploy
+   - Entregas v1.0+v1.1: Calculadora, Dashboard, DB SQLite, 6 componentes UI, Documentação
+   - Métricas: ~1,100 linhas, 16 arquivos, 302 dependências
+   - Próximas: Integração frontend-DB, Exportação Excel/PDF, Deploy Vercel
+   - Timeline: 6h noturnas de desenvolvimento (Aurora), 17h restantes
 
 ## Cron Jobs
 
