@@ -71,3 +71,4 @@ iron-man/
 ## 📝 License
 
 Proprietário - Todos os direitos reservados
+# Trigger rebuild
