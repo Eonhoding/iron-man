@@ -1,4 +1,4 @@
-import { initDatabase, getProjectById, createProject } from ../../../../lib/database
+import { initDatabase, getProjectById, createProject } from '../../../../lib/database'
 
 let dbInitialized = false;
 async function ensureDb() {
@@ -10,36 +10,31 @@ async function ensureDb() {
 
 export default async function handler(req, res) {
   await ensureDb();
-  const { id } = req.query
   
-  if (req.method === 'POST') {
-    try {
-      const original = await getProjectById(id)
-      if (!original) {
-        return res.status(404).json({ 
-          error: { code: 'NOT_FOUND', message: 'Projeto não encontrado' }
-        })
-      }
-      
-      const duplicate = await createProject({
-        nome: `Cópia de ${original.nome}`,
-        area_m2: original.area_m2,
-        tipo_obra: original.tipo_obra,
-        padrao: original.padrao,
-        cliente: original.cliente,
-        status: 'rascunho',
-        valor_total: original.valor_total
-      })
-      
-      return res.status(201).json({ duplicate })
-    } catch (error) {
-      console.error('Erro ao duplicar projeto:', error)
-      return res.status(500).json({ 
-        error: { code: 'INTERNAL_ERROR', message: 'Erro ao duplicar projeto' }
-      })
-    }
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: { message: 'Method not allowed' } })
   }
-  
-  res.setHeader('Allow', ['POST'])
-  return res.status(405).json({ error: { message: `Method ${req.method} not allowed` } })
+
+  try {
+    const { id } = req.query
+    const original = await getProjectById(parseInt(id))
+    
+    if (!original) {
+      return res.status(404).json({ error: { message: 'Project not found' } })
+    }
+
+    const duplicate = await createProject({
+      nome: `${original.nome} (Cópia)`,
+      area_m2: original.area_m2,
+      tipo_obra: original.tipo_obra,
+      padrao: original.padrao,
+      cliente: original.cliente,
+      status: 'rascunho'
+    })
+
+    return res.status(201).json({ duplicate })
+  } catch (error) {
+    console.error('Erro ao duplicar:', error)
+    return res.status(500).json({ error: { message: 'Erro ao duplicar projeto' } })
+  }
 }
