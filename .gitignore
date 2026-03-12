@@ -1,18 +1,25 @@
 # Dependencies
 node_modules/
-package-lock.json
 
-# Build outputs
+# NextJS
 .next/
-dist/
-build/
+out/
+
+# Database
+*.db
+*.sqlite
 
 # Environment
 .env
 .env.local
-.env.*.local
+.env.gmail
 
-# IDE
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor
 .vscode/
 .idea/
 *.swp
@@ -22,19 +29,28 @@ build/
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-npm-debug.log*
-
-# Database (Iron Man)
-data/*.db
-
-# Temporary
-tmp/
-temp/
-.cache/
-
-# Submodules (managed separately)
+# Workspace files (shouldn't be in repo)
+AGENTS.md
+SOUL.md
+USER.md
+HEARTBEAT.md
+MEMORY.md
+CAPABILITIES.md
+PROJECT.md
+ROADMAP.md
+STATE.md
+TOOLS.md
+IDENTITY.md
+.openclaw/
 2nd-brain/
 claude-mem/
+memory/
+skills/
 ui-ux-pro-max-skill/
+tools/
+.planning/
+.dippy/
+.claude/
+
+# HTMLs antigos
+*.html
