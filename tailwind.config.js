@@ -7,28 +7,35 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'iron-red': '#E63946',
-        'iron-red-dark': '#C1121F',
-        'iron-red-light': '#FF6B6B',
-        'iron-gold': '#FFD700',
-        'iron-gold-dark': '#FFA500',
-        'iron-slate': '#1E293B',
-        'iron-slate-dark': '#0F172A',
-        'iron-blue': '#3B82F6',
-        'iron-green': '#10B981',
-        'iron-orange': '#F97316',
+        // Primary - Vermelho Iron Man
+        primary: '#DC2626',
+        'primary-dark': '#B91C1C',
+        'primary-light': '#EF4444',
+        
+        // Secondary - Preto/Aço
+        secondary: '#0F172A',
+        'secondary-dark': '#020617',
+        
+        // Accent - Dourado
+        accent: '#F59E0B',
+        
+        // Neutrals
+        background: '#FAFAFA',
+        surface: '#FFFFFF',
+        border: '#E5E7EB',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Poppins', 'system-ui', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Inter', 'sans-serif'],
+      },
+      borderRadius: {
+        'xl': '12px',
+        '2xl': '16px',
+        '3xl': '20px',
       },
       boxShadow: {
-        'iron': '0 4px 6px -1px rgba(231, 57, 70, 0.2)',
-        'iron-lg': '0 10px 15px -3px rgba(231, 57, 70, 0.3)',
-      },
-      backgroundImage: {
-        'iron-gradient': 'linear-gradient(135deg, #E63946 0%, #C1121F 100%)',
-        'iron-hero': 'linear-gradient(135deg, #1E293B 0%, #0F172A 50%, #E63946 100%)',
+        'soft': '0 2px 8px rgba(0, 0, 0, 0.04)',
+        'medium': '0 4px 16px rgba(0, 0, 0, 0.08)',
+        'large': '0 12px 48px rgba(0, 0, 0, 0.12)',
       },
     },
   },

@@ -2,17 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
-import { Hammer, Plus } from 'lucide-react'
+import { Hammer, Plus, Building2, Home, Factory } from 'lucide-react'
 import ProjectGrid from '../components/ProjectGrid'
 import ProjectModal from '../components/ProjectModal'
-import AutoSaveIndicator from '../components/AutoSaveIndicator'
 
 export default function Dashboard() {
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedProject, setSelectedProject] = useState(null)
-  const [saveStatus, setSaveStatus] = useState('idle')
 
   useEffect(() => {
     loadProjects()
@@ -20,12 +18,11 @@ export default function Dashboard() {
 
   const loadProjects = async () => {
     try {
-      setLoading(true)
       const res = await fetch('/api/projects')
       const data = await res.json()
       setProjects(data.projects || [])
     } catch (error) {
-      console.error('Erro ao carregar projetos:', error)
+      console.error('Erro:', error)
     } finally {
       setLoading(false)
     }
@@ -42,121 +39,93 @@ export default function Dashboard() {
   }
 
   const handleDuplicateProject = async (project) => {
-    try {
-      const res = await fetch(`/api/projects/${project.id}/duplicate`, { method: 'POST' })
-      const data = await res.json()
-      setProjects(prev => [data.duplicate, ...prev])
-    } catch (error) {
-      console.error('Erro ao duplicar:', error)
-    }
+    const res = await fetch(`/api/projects/${project.id}/duplicate`, { method: 'POST' })
+    const data = await res.json()
+    setProjects(prev => [data.duplicate, ...prev])
   }
 
   const handleDeleteProject = async (project) => {
-    if (!confirm(`Tem certeza que deseja excluir "${project.nome}"?`)) return
-    try {
-      await fetch(`/api/projects/${project.id}`, { method: 'DELETE' })
-      setProjects(prev => prev.filter(p => p.id !== project.id))
-    } catch (error) {
-      console.error('Erro ao excluir:', error)
-    }
+    if (!confirm(`Excluir "${project.nome}"?`)) return
+    await fetch(`/api/projects/${project.id}`, { method: 'DELETE' })
+    setProjects(prev => prev.filter(p => p.id !== project.id))
   }
 
   const handleSaveProject = async (projectData) => {
-    setSaveStatus('saving')
-    try {
-      const url = projectData.id ? `/api/projects/${projectData.id}` : '/api/projects'
-      const method = projectData.id ? 'PUT' : 'POST'
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(projectData)
-      })
-      const data = await res.json()
-      if (projectData.id) {
-        setProjects(prev => prev.map(p => p.id === projectData.id ? data.project : p))
-      } else {
-        setProjects(prev => [data.project, ...prev])
-      }
-      setSaveStatus('saved')
-      setModalOpen(false)
-      setTimeout(() => setSaveStatus('idle'), 2000)
-    } catch (error) {
-      console.error('Erro ao salvar:', error)
-      setSaveStatus('error')
-      throw error
+    const url = projectData.id ? `/api/projects/${projectData.id}` : '/api/projects'
+    const method = projectData.id ? 'PUT' : 'POST'
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(projectData)
+    })
+    const data = await res.json()
+    if (projectData.id) {
+      setProjects(prev => prev.map(p => p.id === projectData.id ? data.project : p))
+    } else {
+      setProjects(prev => [data.project, ...prev])
     }
+    setModalOpen(false)
   }
+
+  const totalValue = projects.reduce((sum, p) => sum + (p.valor_total || 0), 0)
 
   return (
     <>
       <Head>
         <title>IRON MAN - Orçamentos</title>
-        <meta name="description" content="Sistema de Orçamentos para Construção Civil" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
       </Head>
 
-      <style jsx global>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes staggerFadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
-        .animate-stagger { animation: staggerFadeIn 0.4s ease-out 0.2s forwards; opacity: 0; }
-      `}</style>
-
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 flex flex-col">
-        {/* Header Melhorado */}
-        <header className="relative overflow-hidden bg-gradient-to-r from-iron-slate via-iron-slate-dark to-iron-red text-white shadow-2xl animate-fade-in">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute inset-0" style={{
-              backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-              backgroundSize: '40px 40px'
-            }}></div>
-          </div>
-          
-          <div className="relative max-w-7xl mx-auto px-4 py-8">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-iron-gold to-iron-gold-dark rounded-2xl flex items-center justify-center shadow-iron-lg transform hover:scale-105 transition-transform duration-300">
-                  <Hammer className="w-10 h-10 text-iron-slate" />
+      <div className="min-h-screen bg-background">
+        {/* Header Limpo */}
+        <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-lg border-b border-border">
+          <div className="max-w-5xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                  <Hammer className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-4xl font-display font-black tracking-tight drop-shadow-lg">
-                    🦾 IRON MAN
-                  </h1>
-                  <p className="text-sm opacity-90 mt-1 font-medium">
-                    Sistema de Orçamentos para Construção Civil
-                  </p>
+                  <h1 className="text-lg font-bold text-secondary">IRON MAN</h1>
+                  <p className="text-xs text-gray-500">Orçamentos</p>
                 </div>
               </div>
               
-              <div className="text-right">
-                <div className="text-sm opacity-80">Bem-vindo</div>
-                <div className="font-bold text-xl drop-shadow">Joelson Lameira</div>
-                <div className="flex gap-3 mt-2 text-sm">
-                  <span className="bg-white/20 backdrop-blur px-3 py-1.5 rounded-full font-medium">
-                    📊 {projects.length} {projects.length === 1 ? 'Projeto' : 'Projetos'}
-                  </span>
+              <button
+                onClick={handleNewProject}
+                className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold transition-colors text-sm"
+              >
+                <Plus size={18} />
+                <span className="hidden sm:inline">Novo Projeto</span>
+              </button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              <div className="bg-background rounded-xl p-3 border border-border">
+                <div className="text-xs text-gray-500 mb-1">Projetos</div>
+                <div className="text-2xl font-bold text-secondary">{projects.length}</div>
+              </div>
+              <div className="bg-background rounded-xl p-3 border border-border">
+                <div className="text-xs text-gray-500 mb-1">Valor Total</div>
+                <div className="text-lg font-bold text-primary">
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(totalValue)}
                 </div>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Main Content */}
-        <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full animate-stagger">
+        {/* Main */}
+        <main className="max-w-5xl mx-auto px-4 py-6">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-3">
               {[1, 2, 3].map(i => (
-                <div key={i} className="bg-white rounded-2xl p-6 shadow-lg animate-pulse">
-                  <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div key={i} className="bg-surface rounded-2xl p-4 shadow-soft animate-pulse">
+                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
                   <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/3"></div>
                 </div>
               ))}
             </div>
@@ -178,30 +147,6 @@ export default function Dashboard() {
           onClose={() => setModalOpen(false)}
           onSave={handleSaveProject}
         />
-
-        {/* Auto-save Indicator */}
-        <AutoSaveIndicator status={saveStatus} />
-
-        {/* Footer Melhorado */}
-        <footer className="mt-auto py-8 bg-gradient-to-r from-iron-slate to-iron-slate-dark text-white shadow-lg">
-          <div className="max-w-7xl mx-auto px-4 text-center">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="text-2xl">🦾</span>
-              <span className="font-bold text-lg">IRON MAN</span>
-            </div>
-            <p className="text-sm opacity-80 mb-2">
-              Sistema de Orçamentos para Construção Civil
-            </p>
-            <p className="text-xs opacity-60">
-              Desenvolvido com 🤖 por Aurora • v1.0
-            </p>
-            <div className="mt-4 flex items-center justify-center gap-4 text-xs opacity-50">
-              <span>⚡ Next.js</span>
-              <span>🎨 Tailwind</span>
-              <span>💾 SQLite</span>
-            </div>
-          </div>
-        </footer>
       </div>
     </>
   )
