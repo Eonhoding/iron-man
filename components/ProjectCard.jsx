@@ -1,5 +1,5 @@
 import Card from './Card'
-import { Pencil, Copy, Trash2, FileSpreadsheet, FileText } from 'lucide-react'
+import { Pencil, Copy, Trash2 } from 'lucide-react'
 
 export default function ProjectCard({ project, onEdit, onDuplicate, onDelete }) {
   const formatCurrency = (value) => {
@@ -14,113 +14,69 @@ export default function ProjectCard({ project, onEdit, onDuplicate, onDelete }) 
     return new Date(date).toLocaleDateString('pt-BR')
   }
 
-  const handleExportExcel = async (e) => {
-    e.stopPropagation()
-    try {
-      const res = await fetch(`/api/export/excel?projectId=${project.id}`)
-      if (!res.ok) throw new Error('Erro ao exportar')
-      
-      const blob = await res.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `IronMan_${project.nome.replace(/[^a-z0-9]/gi, '_')}.xlsx`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
-    } catch (error) {
-      console.error('Erro ao exportar Excel:', error)
-      alert('Erro ao exportar para Excel. Tente novamente.')
-    }
-  }
-
-  const handleExportPDF = async (e) => {
-    e.stopPropagation()
-    try {
-      const res = await fetch(`/api/export/pdf?projectId=${project.id}`)
-      if (!res.ok) throw new Error('Erro ao exportar')
-      
-      const blob = await res.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `IronMan_${project.nome.replace(/[^a-z0-9]/gi, '_')}.html`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
-      
-      // Instruir usuário a imprimir como PDF
-      setTimeout(() => {
-        alert('Arquivo HTML baixado! Abra o arquivo e use Ctrl+P (ou Cmd+P) para salvar como PDF.')
-      }, 500)
-    } catch (error) {
-      console.error('Erro ao exportar PDF:', error)
-      alert('Erro ao exportar para PDF. Tente novamente.')
-    }
-  }
-
   return (
-    <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-      <div onClick={() => onEdit(project)}>
-        {/* Header com ícone do tipo */}
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-2xl">
+    <Card className="group relative overflow-hidden rounded-2xl border-2 border-transparent bg-gradient-to-br from-white to-gray-50 hover:border-iron-red-light hover:shadow-iron-lg transition-all duration-300 transform hover:-translate-y-1">
+      <div className="absolute inset-0 bg-gradient-to-br from-iron-red/10 to-iron-gold/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      
+      <div className="relative p-6">
+        {/* Header with animated icon */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-iron-red to-iron-red-dark flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition-transform duration-300">
             {project.tipo_obra === 'residencial' && '🏠'}
             {project.tipo_obra === 'comercial' && '🏢'}
             {project.tipo_obra === 'industrial' && '🏭'}
-          </span>
-          <h3 className="font-bold text-lg truncate flex-1">{project.nome}</h3>
-        </div>
-
-        {/* Meta info */}
-        <div className="text-sm text-gray-600 mb-3">
-          <div className="flex justify-between items-center">
-            <span className="font-medium">{project.area_m2} m²</span>
-            <span className="font-semibold text-iron-gold">
-              {formatCurrency(project.valor_total || 0)}
-            </span>
           </div>
-          <div className="text-xs text-gray-500 mt-1">
-            Criado em {formatDate(project.created_at)}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-lg text-gray-900 truncate group-hover:text-iron-red transition-colors">
+              {project.nome}
+            </h3>
+            <p className="text-sm text-gray-500">{project.area_m2} m²</p>
           </div>
         </div>
 
-        {/* Badge de status */}
-        <div className="mb-3">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+        {/* Value with highlight */}
+        <div className="mb-4 p-3 bg-gradient-to-r from-iron-gold/10 to-iron-gold/5 rounded-lg border border-iron-gold/20">
+          <div className="text-xs text-gray-500 mb-1 font-medium">Valor Total</div>
+          <div className="text-xl font-black text-iron-red">
+            {formatCurrency(project.valor_total || 0)}
+          </div>
+        </div>
+
+        {/* Status badge */}
+        <div className="mb-4">
+          <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold ${
             project.status === 'finalizado' 
               ? 'bg-green-100 text-green-800' 
-              : 'bg-yellow-100 text-yellow-800'
+              : 'bg-amber-100 text-amber-800'
           }`}>
-            {project.status === 'finalizado' ? '✅ Finalizado' : '📝 Rascunho'}
+            {project.status === 'finalizado' ? '✅' : '📝'}
+            {project.status === 'finalizado' ? 'Finalizado' : 'Rascunho'}
           </span>
         </div>
-      </div>
 
-      {/* Actions */}
-      <div className="flex gap-2 pt-3 border-t border-gray-200">
-        <button
-          onClick={(e) => { e.stopPropagation(); onEdit(project) }}
-          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-iron-red text-white rounded hover:bg-iron-red-dark transition-colors text-sm font-medium"
-        >
-          <Pencil size={14} /> Editar
-        </button>
-        <button
-          onClick={(e) => { e.stopPropagation(); onDuplicate(project) }}
-          className="px-3 py-2 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
-          title="Duplicar"
-        >
-          <Copy size={14} />
-        </button>
-        <button
-          onClick={(e) => { e.stopPropagation(); onDelete(project) }}
-          className="px-3 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors"
-          title="Excluir"
-        >
-          <Trash2 size={14} />
-        </button>
+        {/* Actions */}
+        <div className="flex gap-2 pt-4 border-t border-gray-200">
+          <button
+            onClick={(e) => { e.stopPropagation(); onEdit(project) }}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-iron-red to-iron-red-dark text-white rounded-lg hover:shadow-lg transition-all text-sm font-bold transform hover:scale-105"
+          >
+            <Pencil size={16} /> Editar
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDuplicate(project) }}
+            className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            title="Duplicar"
+          >
+            <Copy size={16} />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(project) }}
+            className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+            title="Excluir"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </div>
     </Card>
   )
